@@ -7,12 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import ru.semyak.FIrstRestApp.dto.PersonDTO;
 import ru.semyak.FIrstRestApp.entities.Person;
 import ru.semyak.FIrstRestApp.services.PeopleService;
 import ru.semyak.FIrstRestApp.util.PersonErrorResponse;
 import ru.semyak.FIrstRestApp.util.PersonNotCreatedException;
 import ru.semyak.FIrstRestApp.util.PersonNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -43,7 +45,7 @@ public class PeopleController {
     }
 
     @PostMapping
-    public ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person, BindingResult bindingResult) {
+    public ResponseEntity<HttpStatus> create(@RequestBody @Valid PersonDTO personDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             StringBuilder errorMessage = new StringBuilder();
 
@@ -53,7 +55,7 @@ public class PeopleController {
             }
             throw new PersonNotCreatedException(errorMessage.toString());
         }
-        peopleService.save(person);
+        peopleService.save(convertToPerson(personDTO));
         return ResponseEntity.ok(HttpStatus.CREATED);
     }
 
@@ -68,4 +70,15 @@ public class PeopleController {
         peopleService.deletePerson(id);
         return ResponseEntity.ok(id);
     }
+
+    private Person convertToPerson(PersonDTO personDTO) {
+        Person person = new Person();
+
+        person.setName(personDTO.getName());
+        person.setAge(personDTO.getAge());
+        person.setEmail(personDTO.getEmail());
+
+        return person;
+    }
+
 }
